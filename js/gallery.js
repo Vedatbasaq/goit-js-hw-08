@@ -1,4 +1,3 @@
-
 const images = [
   {
     preview:
@@ -67,31 +66,47 @@ const images = [
 
 const list = document.querySelector(".gallery");
 
+let markup = "";
 images.forEach(({ preview, original, description }) => {
-  list.innerHTML += `<li class="gallery-item">
-  <a class="gallery-link" href="${original}">
-    <img
-      class="gallery-image"
-      src="${preview}"
-      data-source="${original}"
-      alt="${description}"
-      width="360"
-      height="200"
-    />
-  </a>
-</li>
-`;
+  markup += `
+    <li class="gallery-item">
+      <a class="gallery-link" href="${original}">
+        <img
+          class="gallery-image"
+          src="${preview}"
+          data-source="${original}"
+          alt="${description}"
+          width="360"
+          height="200"
+        />
+      </a>
+    </li>
+  `;
 });
-list.addEventListener("click", function (e) {
-  e.preventDefault()
-  if (e.target.nodeName === "IMG") {
-    const instance = basicLightbox.create(`<img src="${e.target.dataset.source}" width="1112" height="640">`)
-    instance.show()
+list.innerHTML = markup;
 
-    document.addEventListener("keyup", function (e) {
-      if (e.code === "Escape") {
-        instance.close()
+
+list.addEventListener("click", function (e) {
+  e.preventDefault();
+  if (e.target.nodeName === "IMG") {
+    const instance = basicLightbox.create(
+      `<img src="${e.target.dataset.source}" width="1112" height="640">`,
+      {
+        onShow: (instance) => {
+          document.addEventListener("keyup", onKeyUp);
+        },
+        onClose: (instance) => {
+          document.removeEventListener("keyup", onKeyUp);
+        },
       }
-    })
+    );
+
+    function onKeyUp(event) {
+      if (event.code === "Escape") {
+        instance.close();
+      }
+    }
+
+    instance.show();
   }
 });
